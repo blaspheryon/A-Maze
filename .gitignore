@@ -1,0 +1,20 @@
+# Ignore .exe files
+*.exe
+
+# Ignore user .csproj files
+*.csproj.user
+
+# Ignore Visual Studio folder
+.vs/
+
+# Ignore Visual Studio Code folder
+.vscode/
+
+# Ignore directory with binaries
+bin/
+
+# Ignore directory with intermediates (obj)
+obj/
+
+# Ignore editor config file
+.editorconfig
