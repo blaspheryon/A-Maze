@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <RootNamespace>AMaze</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Algorithms\Generation\BinaryTree.cs" />
+    <Compile Remove="Algorithms\Generation\HuntAndKill.cs" />
+    <Compile Remove="Algorithms\Generation\RecursiveBacktracker.cs" />
+    <Compile Remove="Algorithms\Generation\Sidewinder.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Algorithms\" />
+  </ItemGroup>
+
+</Project>
