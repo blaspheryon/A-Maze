@@ -1,4 +1,4 @@
-﻿using System.Windows;
+﻿using Point = System.Windows.Point;
 
 namespace AMaze.Mazes;
 
@@ -22,12 +22,17 @@ public interface IGrid
     /// <summary>
     /// Gets the size of the <see cref="ICell"/> cells in pixels.
     /// </summary>
-    public int CellSize { get; }
+    public int CellSize { get; set; }
 
     /// <summary>
     /// List of cells that changed state since the last draw.
     /// </summary>
     public List<ICell> DirtyCells { get; }
+
+    /// <summary>
+    /// Gets the style of the Grid (e.g. wall color, active cell color, etc.)
+    /// </summary>
+    public GridStyle Style { get; }
 
     /// <summary>
     /// Marks a cell as dirty, so it will be redrawn on the next frame.

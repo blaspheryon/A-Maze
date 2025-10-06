@@ -1,4 +1,4 @@
-﻿using System.Windows;
+﻿using Point = System.Windows.Point;
 
 namespace AMaze.Mazes;
 
@@ -9,7 +9,9 @@ public abstract class GridBase : IGrid
 
     public int Rows { get; protected set; }
     public int Columns { get; protected set; }
-    public int CellSize { get; protected set; }
+    public int CellSize { get; set; }
+
+    public GridStyle Style { get; } = new();
 
     /// <summary>
     /// Cells that changed state since the last draw.
