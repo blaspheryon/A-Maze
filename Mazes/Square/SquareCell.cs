@@ -1,4 +1,8 @@
-﻿using System.Windows;
+﻿using System.Windows.Media;
+using Point = System.Windows.Point;
+using Brushes = System.Windows.Media.Brushes;
+using Brush = System.Windows.Media.Brush;
+using Pen = System.Windows.Media.Pen;
 
 namespace AMaze.Mazes.Square;
 
@@ -46,38 +50,45 @@ public class SquareCell(int row, int column, IGrid grid) : CellBase(row, column,
         return new Point(x, y);
     }
 
-    /// <summary>
-    /// Returns the 4 corner points of the square cell for drawing purposes.
-    /// </summary>
-    public override Point[] GetPolygon(double cellSize, Point? gridCenter = null)
+    public override void Draw(DrawingContext dc)
     {
-        double x = Column * cellSize;
-        double y = Row * cellSize;
-
-        return
-        [
-            new(x, y),                        // top-left
-            new (x + cellSize, y),             // top-right
-            new (x + cellSize, y + cellSize),  // bottom-right
-            new (x, y + cellSize)              // bottom-left
-        ];
-    }
-
-
-    public override IEnumerable<(Point Start, Point End)> GetEdges()
-    {
-        double x = Column * grid.CellSize;
-        double y = Row * grid.CellSize;
         double size = grid.CellSize;
+        double x = Column * size;
+        double y = Row * size;
 
+        // Calculate corner points
         Point topLeft = new(x, y);
         Point topRight = new(x + size, y);
         Point bottomRight = new(x + size, y + size);
         Point bottomLeft = new(x, y + size);
 
-        if (!IsLinked(North)) yield return (topLeft, topRight);
-        if (!IsLinked(East)) yield return (topRight, bottomRight);
-        if (!IsLinked(South)) yield return (bottomRight, bottomLeft);
-        if (!IsLinked(West)) yield return (bottomLeft, topLeft);
+        // Fill color based on state
+        Brush fillBrush = Brushes.White;
+        if (IsVisited) fillBrush = Brushes.LightGray;
+        if (IsPath) fillBrush = Brushes.Yellow;
+        if (IsActive) fillBrush = Brushes.OrangeRed;
+
+        // Draw cell background
+        StreamGeometry fillGeometry = new();
+        using (StreamGeometryContext ctx = fillGeometry.Open())
+        {
+            ctx.BeginFigure(topLeft, true, true);
+            ctx.PolyLineTo(new[] { topRight, bottomRight, bottomLeft }, true, true);
+        }
+        dc.DrawGeometry(fillBrush, null, fillGeometry);
+
+        // Draw walls if not linked in that direction
+        if (North == null || !IsLinked(North))
+            dc.DrawLine(grid.Style.WallPen, topLeft, topRight);
+
+        if (East == null || !IsLinked(East))
+            dc.DrawLine(grid.Style.WallPen, topRight, bottomRight);
+
+        if (South == null || !IsLinked(South))
+            dc.DrawLine(grid.Style.WallPen, bottomRight, bottomLeft);
+
+        if (West == null || !IsLinked(West))
+            dc.DrawLine(grid.Style.WallPen, bottomLeft, topLeft);
     }
+
 }

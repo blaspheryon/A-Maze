@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Windows.Media;
+using Point = System.Windows.Point;
 
 namespace AMaze.Mazes;
 
@@ -115,6 +116,5 @@ public abstract class CellBase(int row, int column, IGrid grid) : ICell
     }
 
     public abstract Point GetCenter(double cellSize, Point? gridCenter = null);
-    public abstract Point[] GetPolygon(double cellSize, Point? gridCenter = null);
-    public abstract IEnumerable<(Point Start, Point End)> GetEdges();
+    public abstract void Draw(DrawingContext dc);
 }

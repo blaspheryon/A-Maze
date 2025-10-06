@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Windows.Media;
+using Point = System.Windows.Point;
 
 namespace AMaze.Mazes;
 
@@ -83,16 +84,11 @@ public interface ICell
     Point GetCenter(double cellSize, Point? gridCenter = null);
 
     /// <summary>
-    /// Returns the polygon points representing the cell boundaries for drawing purposes.
-    /// </summary>
-    Point[] GetPolygon(double cellSize, Point? gridCenter = null);
-
-    /// <summary>
     /// Returns a <see cref="Distances"/> object containing distances from this cell
     /// to all other cells in the grid.
     /// </summary>
     /// <returns>A <see cref="Distances"/> object.</returns>
     Distances GetCellDistances();
 
-    IEnumerable<(Point Start, Point End)> GetEdges();
+    void Draw(DrawingContext dc);
 }
