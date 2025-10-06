@@ -7,17 +7,22 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+	  <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Algorithms\Generation\BinaryTree.cs" />
     <Compile Remove="Algorithms\Generation\HuntAndKill.cs" />
     <Compile Remove="Algorithms\Generation\RecursiveBacktracker.cs" />
     <Compile Remove="Algorithms\Generation\Sidewinder.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Algorithms\" />
+    <COMReference Include="{215d64d2-031c-33c7-96e3-61794cd1ee61}">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>4</VersionMinor>
+      <VersionMajor>2</VersionMajor>
+      <Guid>215d64d2-031c-33c7-96e3-61794cd1ee61</Guid>
+    </COMReference>
   </ItemGroup>
 
 </Project>

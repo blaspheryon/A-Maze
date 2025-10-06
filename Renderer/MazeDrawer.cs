@@ -1,90 +1,61 @@
-﻿using System.Windows;
+﻿using AMaze.Mazes;
 using System.Windows.Input;
 using System.Windows.Media;
-using AMaze.Mazes;
+using System.Windows;
 
-namespace AMaze.Renderer
+using Brush = System.Windows.Media.Brush;
+using Brushes = System.Windows.Media.Brushes;
+using Pen = System.Windows.Media.Pen;
+using Point = System.Windows.Point;
+
+namespace AMaze.Renderer;
+
+public class MazeDrawer : FrameworkElement
 {
-    public class MazeDrawer : FrameworkElement
+    private IGrid? _grid;
+    public Brush WallBrush { get; set; } = Brushes.Black;
+
+    public MazeDrawer()
     {
-        private IGrid? _grid;
+        MouseLeftButtonDown += MazeDrawer_MouseLeftButtonDown;
+    }
 
-        public MazeDrawer()
+    public void Initialize(IGrid grid)
+    {
+        _grid = grid;
+        InvalidateVisual();
+    }
+
+    protected override void OnRender(DrawingContext dc)
+    {
+        base.OnRender(dc);
+        if (_grid == null) return;
+
+        var cellsToDraw = _grid.DirtyCells.Count > 0 ? _grid.DirtyCells : _grid.Cells;
+
+        foreach (var cell in cellsToDraw)
         {
-            MouseLeftButtonDown += MazeDrawer_MouseLeftButtonDown;
+            cell.Draw(dc);
         }
 
-        public void Initialize(IGrid grid)
-        {
-            _grid = grid;
-            InvalidateVisual();
-        }
+        _grid.ClearDirty();
+    }
 
-        protected override void OnRender(DrawingContext dc)
-        {
-            base.OnRender(dc);
-            if (_grid == null) return;
+    private void MazeDrawer_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (_grid == null) return;
 
-            // Draw only dirty cells if any, otherwise draw all
-            var cellsToDraw = _grid.DirtyCells.Count > 0 ? _grid.DirtyCells : _grid.Cells;
+        Point pos = e.GetPosition(this);
+        Point gridCoords = _grid.ScreenToGridCoordinates(pos);
 
-            foreach (var cell in cellsToDraw)
-            {
-                DrawCell(dc, cell);
-            }
+        int row = (int)gridCoords.Y;
+        int col = (int)gridCoords.X;
 
-            // Clear dirty list after drawing
-            _grid.ClearDirty();
-        }
+        var cell = _grid[row, col];
+        if (cell == null) return;
 
-        private void DrawCell(DrawingContext dc, ICell cell)
-        {
-            // 1. Fill background
-            var polygon = cell.GetPolygon(_grid!.CellSize);
-            if (polygon.Length > 2)
-            {
-                var geometry = new StreamGeometry();
-                using (var ctx = geometry.Open())
-                {
-                    ctx.BeginFigure(polygon[0], true, true);
-                    ctx.PolyLineTo(polygon[1..], true, true);
-                }
-
-                Brush brush = Brushes.White;
-                if (cell.IsVisited) brush = Brushes.LightGray;
-                if (cell.IsPath) brush = Brushes.Yellow;
-                if (cell.IsActive) brush = Brushes.OrangeRed;
-
-                dc.DrawGeometry(brush, null, geometry);
-            }
-
-            // 2. Draw walls
-            var pen = new Pen(Brushes.Black, 1);
-            foreach (var (start, end) in cell.GetEdges())
-            {
-                dc.DrawLine(pen, start, end);
-            }
-        }
-
-        private void MazeDrawer_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (_grid == null) return;
-
-            Point pos = e.GetPosition(this);
-
-            // Let the grid resolve which cell was clicked
-            Point gridCoords = _grid.ScreenToGridCoordinates(pos);
-
-            int row = (int)gridCoords.Y;
-            int col = (int)gridCoords.X;
-
-            var cell = _grid[row, col];
-            if (cell == null) return;
-
-            cell.IsActive = !cell.IsActive;
-
-            _grid.MarkDirty(cell);
-            InvalidateVisual();
-        }
+        cell.IsActive = !cell.IsActive;
+        _grid.MarkDirty(cell);
+        InvalidateVisual();
     }
 }

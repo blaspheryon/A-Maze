@@ -1,4 +1,4 @@
-﻿using System.Windows;
+﻿using Point = System.Windows.Point;
 
 namespace AMaze.Mazes.Square;
 
@@ -22,7 +22,7 @@ public class SquareGrid : GridBase
     /// </summary>
     private void InitializeGrid()
     {
-        grid = new List<List<ICell>>();
+        grid = [];
 
         for (int row = 0; row < Rows; row++)
         {
