@@ -1,94 +1,68 @@
-﻿using AMaze.Mazes;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AMaze.Mazes;
 using AMaze.Mazes.Square;
-using AMazer.Utils;
 
-namespace AMazer.Algorithms.Generation;
+namespace AMaze.Algorithms.Generation;
 
 /// <summary>
-///  A class representing the Binary Tree maze generating algorithm.
+/// Binary Tree maze generation algorithm compatible with current GridBase/CellBase.
 /// </summary>
-/// <remarks>
-/// <para>
-/// This class implements the <see cref="IGenerationAlgorithm"/> interface.
-/// You can find more in the interface documentation.
-/// </para>
-///
-/// <para>
-/// The Binary Tree is a simple and fast algorithm, but it's mazes are very biased.
-/// </para>
-/// </remarks>
-///
-/// <param name="grid">
-/// <see cref="IGrid"/> grid on which we generate the maze.
-/// </param>
-///
-/// <param name="seed">
-/// An integer seed used for the consistent maze generation for the same seed.
-/// </param>
-class BinaryTree(IGrid grid, int seed) : IGenerationAlgorithm
+public class BinaryTree(IGrid grid, int seed = 0) : IGenerationAlgorithm
 {
-    private readonly Random rand = new(seed);
+    private readonly Random _rand = new Random(seed);
+    private readonly IGrid _grid = grid ?? throw new ArgumentNullException(nameof(grid));
+    private IEnumerator<ICell>? _cellIterator;
 
-    // Collection of all the cells within the grid
-    private readonly IGrid grid_ = grid;
-    private readonly IEnumerator<ICell> CellIterator = grid.Cells.GetEnumerator();
+    public List<ICell> CurrentCells { get; private set; } = new();
 
-    // Gets the current cell used in Step function
-    private ICell CurrentCell => CellIterator.Current;
-    public List<ICell> CurrentCells { get; private set; } = [];
-
+    /// <summary>
+    /// Fully generate the maze at once.
+    /// </summary>
     public IGrid CreateMaze()
     {
-        /// Iterates through all cells in the grid, and for each
-        /// chooses to link with either north neighbour or east neighbour.
-        /// For polar grids it chooses either the inward or clockwise neighbour.
-        while (CellIterator.MoveNext())
+        foreach (var cell in _grid.Cells)
         {
-            ICell cell = CellIterator.Current;
-            List<ICell> neighbours = GetAdjacentCells(cell);
-
-            if (neighbours.Count > 0)
-            {
-                ICell neighbour = neighbours.RandomElement(rand);
-                cell.Link(neighbour);
-            }
+            LinkRandomNeighbour(cell);
         }
 
-        return grid_;
+        return _grid;
     }
 
+    /// <summary>
+    /// Performs a single step of maze generation for animation.
+    /// </summary>
     public bool Step()
     {
-        /// CreateMaze rewritten to perform only a single step upon call.
-        /// Used for showing maze generation animation
-        if (!CellIterator.MoveNext()) { return false; }
+        if (_cellIterator == null)
+            _cellIterator = _grid.Cells.GetEnumerator();
 
-        CurrentCells = [CurrentCell];
+        if (!_cellIterator.MoveNext())
+            return false;
 
-        List<ICell> neighbours = GetAdjacentCells(CurrentCell!);
-
-        if (neighbours.Count > 0)
-        {
-            ICell neighbour = neighbours.RandomElement(rand);
-            CurrentCell.Link(neighbour);
-        }
+        var current = _cellIterator.Current!;
+        CurrentCells = [current];
+        LinkRandomNeighbour(current);
 
         return true;
     }
 
     /// <summary>
-    /// Gets the neighbours for Binary Tree algorithm from which we choose one randomly.
+    /// Chooses either North or East neighbour (for square grids) randomly and links.
     /// </summary>
-    /// <param name="cell">
-    /// The <see cref="ICell"/> cell whose neighbours we return.
-    /// </param>
-    /// <returns>
-    /// List of <see cref="ICell"/> neighbours for Binary Tree algorithm.
-    /// </returns>
-    private List<ICell> GetAdjacentCells(ICell cell)
+    private void LinkRandomNeighbour(ICell cell)
     {
-        SquareCell squareCell = (SquareCell)cell;
+        if (cell is not SquareCell squareCell) return;
 
-        return new List<ICell> { squareCell.North, squareCell.East }.FindAll(c => c != null);
+        var neighbours = new List<ICell>();
+        if (squareCell.North != null) neighbours.Add(squareCell.North);
+        if (squareCell.East != null) neighbours.Add(squareCell.East);
+
+        if (neighbours.Count > 0)
+        {
+            var neighbour = neighbours[_rand.Next(neighbours.Count)];
+            cell.Link(neighbour);
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.Collections.Generic;
 using AMaze.Mazes;
 
@@ -11,7 +11,7 @@ namespace AMaze.Algorithms.Generation
         private int unvisitedCount;
         private ICell currentCell;
 
-        public List<ICell> CurrentCells { get; } = new List<ICell>();
+        public List<ICell> CurrentCells { get; } = [];
 
         public AldousBroder(IGrid grid, int seed = 0)
         {
